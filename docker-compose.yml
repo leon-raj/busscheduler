@@ -1,45 +1,34 @@
-# Full-stack development environment — brings up the entire project with one command:
+# Run the full stack locally:
 #
-#   docker compose up -d
+#   docker compose up -d --build
 #
-# ── First-time setup ──────────────────────────────────────────────────────────
+# Both repos must be cloned into the same parent directory:
 #
-#  1. Copy and fill in secrets:
-#       cp .env.example .env
-#     Edit .env — at minimum set JWT_SECRET.
+#   parent/
+#   ├── busscheduler/           ← this repo
+#   └── Transport-System-Final/ ← main project repo
 #
-#  2. (Optional) VROOM: place your Linux x86-64 vroom binary at bin/vroom
-#     before building. Without it, set SOLVER=greedy in .env (test-only solver)
-#     or switch to ROUTING_PROVIDER=haversine which doesn't need VROOM.
+# First-time setup:
+#   cp .env.example .env        ← edit JWT_SECRET at minimum
+#   cp /path/to/vroom bin/vroom ← optional; omit and set SOLVER=greedy without it
 #
-#  3. Build the Flutter web app (skip if running flutter on the host):
-#       cd Transport-System-Final/frontend
-#       flutter build web \
-#         --dart-define=API_BASE=http://localhost:8000 \
-#         --dart-define=SCHEDULER_BASE=http://localhost:8080
+# Flutter web app (run separately on your machine, not in Docker):
+#   cd ../Transport-System-Final/frontend
+#   flutter run -d chrome \
+#     --dart-define=API_BASE=http://localhost:8000 \
+#     --dart-define=SCHEDULER_BASE=http://localhost:8080
 #
-#  4. (OSRM profile only) Pre-process your OSM data file:
-#       # Download a .pbf for your region from https://download.geofabrik.de
-#       cp ~/Downloads/region.osm.pbf osrm-data/
-#       docker run --rm -v ./osrm-data:/data osrm/osrm-backend \
-#           osrm-extract -p /opt/car.lua /data/region.osm.pbf
-#       docker run --rm -v ./osrm-data:/data osrm/osrm-backend \
-#           osrm-partition /data/region.osrm
-#       docker run --rm -v ./osrm-data:/data osrm/osrm-backend \
-#           osrm-customize /data/region.osrm
-#     Then start everything: docker compose --profile osrm up -d
-#     And set ROUTING_PROVIDER=osrm in .env.
-#
-# ─────────────────────────────────────────────────────────────────────────────
+# OSRM (optional, needs pre-processed map data):
+#   docker compose --profile osrm up -d  (see README for data prep steps)
 
 name: transit-full
 
 services:
 
   # ── Shared Postgres ────────────────────────────────────────────────────────
-  # Hosts two databases:
-  #   transit  — Python / FastAPI backend (Alembic-managed)
-  #   busdb    — Go scheduler service (schema.sql-managed)
+  # Two databases in one instance:
+  #   transit → Python API (Alembic-managed)
+  #   busdb   → Go scheduler (schema.sql-managed)
   db:
     image: postgres:16-alpine
     restart: unless-stopped
@@ -49,9 +38,7 @@ services:
       POSTGRES_DB: transit
     volumes:
       - pgdata:/var/lib/postgresql/data
-      # Creates transit_test (pytest) — from the main project
-      - ./Transport-System-Final/backend/scripts/init-test-db.sql:/docker-entrypoint-initdb.d/10_test.sql:ro
-      # Creates busdb for the scheduler service
+      - ../Transport-System-Final/backend/scripts/init-test-db.sql:/docker-entrypoint-initdb.d/10_test.sql:ro
       - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/20_busdb.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U transit"]
@@ -61,9 +48,9 @@ services:
     ports:
       - "${POSTGRES_PORT:-5433}:5432"
 
-  # ── Python / FastAPI backend (main project) ────────────────────────────────
+  # ── Python / FastAPI backend ───────────────────────────────────────────────
   api:
-    build: ./Transport-System-Final/backend
+    build: ../Transport-System-Final/backend
     restart: unless-stopped
     depends_on:
       db:
@@ -84,7 +71,7 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgres://transit:${POSTGRES_PASSWORD:-transit}@db:5432/busdb?sslmode=disable
-      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env — must match the Python API's JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
       ROUTING_PROVIDER: ${ROUTING_PROVIDER:-haversine}
       OSRM_URL: http://osrm:5000
       VROOM_PATH: /usr/local/bin/vroom
@@ -93,9 +80,9 @@ services:
     ports:
       - "${SCHEDULER_PORT:-8080}:8080"
 
-  # ── OSRM routing backend (optional profile) ────────────────────────────────
-  # Enable: docker compose --profile osrm up -d
-  # Requires pre-processed OSM data in osrm-data/ (see setup steps above).
+  # ── OSRM (optional) ────────────────────────────────────────────────────────
+  # Start with: docker compose --profile osrm up -d
+  # Data prep:  see README — download an .osm.pbf and run the three extract/partition/customize steps
   osrm:
     profiles: ["osrm"]
     image: osrm/osrm-backend:latest
