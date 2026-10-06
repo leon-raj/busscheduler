@@ -13,6 +13,21 @@ import (
 
 const devJWTSecret = "dev-secret-change-me-dev-secret-change-me"
 
+// corsMiddleware adds permissive CORS headers so the Flutter web app (which runs
+// on a different port than the scheduler) can call this service.
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 // jwtMiddleware validates the Bearer token signed by the main Python backend (HS256).
 // Skips /healthz so load-balancers and monitoring can probe without a token.
 // Reads JWT_SECRET from the environment; falls back to the dev secret when not set.

@@ -207,7 +207,7 @@ func (s *Server) Handler() http.Handler {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
 
-	return jwtMiddleware(mux)
+	return corsMiddleware(jwtMiddleware(mux))
 }
 
 // ---------------- Plan Handlers ----------------
