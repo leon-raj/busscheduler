@@ -1,0 +1,147 @@
+{
+  "college": {
+    "college_id": "college-1",
+    "stop_id": "st20"
+  },
+  "time_window": {
+    "earliest_departure": "2026-10-01T06:30:00+05:30",
+    "arrival_deadline": "2026-10-01T08:45:00+05:30"
+  },
+  "desired_empty_seats": 2,
+  "buses": [
+    {
+      "id": "BUS-1",
+      "capacity": 12
+    },
+    {
+      "id": "BUS-2",
+      "capacity": 12
+    },
+    {
+      "id": "BUS-3",
+      "capacity": 12
+    }
+  ],
+  "students": [
+    {
+      "id": "S01",
+      "stop_id": "st1"
+    },
+    {
+      "id": "S02",
+      "stop_id": "st1"
+    },
+    {
+      "id": "S03",
+      "stop_id": "st2"
+    },
+    {
+      "id": "S04",
+      "stop_id": "st3"
+    },
+    {
+      "id": "S05",
+      "stop_id": "st3"
+    },
+    {
+      "id": "S06",
+      "stop_id": "st3"
+    },
+    {
+      "id": "S07",
+      "stop_id": "st4"
+    },
+    {
+      "id": "S08",
+      "stop_id": "st5"
+    },
+    {
+      "id": "S09",
+      "stop_id": "st6"
+    },
+    {
+      "id": "S10",
+      "stop_id": "st7"
+    },
+    {
+      "id": "S11",
+      "stop_id": "st7"
+    },
+    {
+      "id": "S12",
+      "stop_id": "st8"
+    },
+    {
+      "id": "S13",
+      "stop_id": "st9"
+    },
+    {
+      "id": "S14",
+      "stop_id": "st10"
+    },
+    {
+      "id": "S15",
+      "stop_id": "st11"
+    },
+    {
+      "id": "S16",
+      "stop_id": "st12"
+    },
+    {
+      "id": "S17",
+      "stop_id": "st13"
+    },
+    {
+      "id": "S18",
+      "stop_id": "st14"
+    },
+    {
+      "id": "S19",
+      "stop_id": "st15"
+    },
+    {
+      "id": "S20",
+      "stop_id": "st16"
+    },
+    {
+      "id": "S21",
+      "stop_id": "st17"
+    },
+    {
+      "id": "S22",
+      "stop_id": "st18"
+    },
+    {
+      "id": "S23",
+      "stop_id": "st19"
+    },
+    {
+      "id": "S24",
+      "stop_id": "st21"
+    },
+    {
+      "id": "S25",
+      "stop_id": "st22"
+    },
+    {
+      "id": "S26",
+      "stop_id": "st23"
+    },
+    {
+      "id": "S27",
+      "stop_id": "st24"
+    },
+    {
+      "id": "S28",
+      "stop_id": "st25"
+    },
+    {
+      "id": "S29",
+      "stop_id": "st26"
+    },
+    {
+      "id": "S30",
+      "stop_id": "st27"
+    }
+  ]
+}

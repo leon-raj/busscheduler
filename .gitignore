@@ -1,0 +1,6 @@
+.env
+.matrix_cache/
+bin/vroom
+osrm-data/*.pbf
+osrm-data/*.osrm
+osrm-data/*.osrm.*
